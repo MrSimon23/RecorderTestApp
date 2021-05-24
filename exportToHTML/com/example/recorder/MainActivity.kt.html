@@ -1,0 +1,135 @@
+<html>
+<head>
+<title>MainActivity.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #000080; font-weight: bold;}
+.s1 { color: #000000;}
+.s2 { color: #0000ff;}
+.s3 { color: #008000; font-weight: bold;}
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+MainActivity.kt</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">package </span>com.example.recorder
+<a name="l2"><span class="ln">2    </span></a>
+<a name="l3"><span class="ln">3    </span></a>import android.annotation.SuppressLint
+<a name="l4"><span class="ln">4    </span></a>import android.annotation.TargetApi
+<a name="l5"><span class="ln">5    </span></a>import android.app.Activity
+<a name="l6"><span class="ln">6    </span></a>import android.content.pm.PackageManager
+<a name="l7"><span class="ln">7    </span></a>import android.media.MediaRecorder
+<a name="l8"><span class="ln">8    </span></a>import android.os.Build
+<a name="l9"><span class="ln">9    </span></a>import androidx.appcompat.app.AppCompatActivity
+<a name="l10"><span class="ln">10   </span></a>import android.os.Bundle
+<a name="l11"><span class="ln">11   </span></a>import android.os.Environment
+<a name="l12"><span class="ln">12   </span></a>import android.widget.Button
+<a name="l13"><span class="ln">13   </span></a>import android.widget.Toast
+<a name="l14"><span class="ln">14   </span></a>import androidx.annotation.RequiresApi
+<a name="l15"><span class="ln">15   </span></a>import androidx.core.app.ActivityCompat
+<a name="l16"><span class="ln">16   </span></a>import androidx.core.content.ContextCompat
+<a name="l17"><span class="ln">17   </span></a>import java.io.IOException
+<a name="l18"><span class="ln">18   </span></a>import java.util.jar.Manifest
+<a name="l19"><span class="ln">19   </span></a>
+<a name="l20"><span class="ln">20   </span></a><span class="s0">class </span>MainActivity : Activity() {
+<a name="l21"><span class="ln">21   </span></a>    private lateinit <span class="s0">var </span>button_start:Button
+<a name="l22"><span class="ln">22   </span></a>    private lateinit <span class="s0">var </span>button_pause:Button
+<a name="l23"><span class="ln">23   </span></a>    private lateinit <span class="s0">var </span>button_stop: Button
+<a name="l24"><span class="ln">24   </span></a>    private <span class="s0">var </span>output: String? = <span class="s0">null</span>
+<a name="l25"><span class="ln">25   </span></a>    private <span class="s0">var </span>mr: MediaRecorder?=<span class="s0">null</span>
+<a name="l26"><span class="ln">26   </span></a>    private <span class="s0">var </span>state:Boolean=<span class="s0">false</span>
+<a name="l27"><span class="ln">27   </span></a>    private <span class="s0">var </span>recordingStopped:Boolean=<span class="s0">false</span>
+<a name="l28"><span class="ln">28   </span></a>
+<a name="l29"><span class="ln">29   </span></a>    @RequiresApi(Build.VERSION_CODES.R)
+<a name="l30"><span class="ln">30   </span></a>    override <span class="s0">fun </span>onCreate(savedInstanceState: Bundle?) {
+<a name="l31"><span class="ln">31   </span></a>        <span class="s0">super</span>.onCreate(savedInstanceState)
+<a name="l32"><span class="ln">32   </span></a>        setContentView(R.layout.activity_main)
+<a name="l33"><span class="ln">33   </span></a>
+<a name="l34"><span class="ln">34   </span></a>        <span class="s0">if </span>(ContextCompat.checkSelfPermission(<span class="s0">this</span>,
+<a name="l35"><span class="ln">35   </span></a>                        android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+<a name="l36"><span class="ln">36   </span></a>                &amp;&amp;ContextCompat.checkSelfPermission(<span class="s0">this</span>,
+<a name="l37"><span class="ln">37   </span></a>                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED)
+<a name="l38"><span class="ln">38   </span></a>        {
+<a name="l39"><span class="ln">39   </span></a>            <span class="s0">val </span>permissions= arrayOf(android.Manifest.permission.RECORD_AUDIO,
+<a name="l40"><span class="ln">40   </span></a>                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+<a name="l41"><span class="ln">41   </span></a>                    android.Manifest.permission.READ_EXTERNAL_STORAGE)
+<a name="l42"><span class="ln">42   </span></a>            ActivityCompat.requestPermissions(<span class="s0">this</span>,permissions,<span class="s2">0</span>)
+<a name="l43"><span class="ln">43   </span></a>        }
+<a name="l44"><span class="ln">44   </span></a>
+<a name="l45"><span class="ln">45   </span></a>        mr= MediaRecorder()
+<a name="l46"><span class="ln">46   </span></a>        output=Environment.getStorageDirectory().absolutePath+<span class="s3">&quot;/recording.mp3&quot;</span>
+<a name="l47"><span class="ln">47   </span></a>
+<a name="l48"><span class="ln">48   </span></a>        mr?.setAudioSource(MediaRecorder.AudioSource.MIC)
+<a name="l49"><span class="ln">49   </span></a>        mr?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+<a name="l50"><span class="ln">50   </span></a>        mr?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+<a name="l51"><span class="ln">51   </span></a>        mr?.setOutputFile(output)
+<a name="l52"><span class="ln">52   </span></a>
+<a name="l53"><span class="ln">53   </span></a>        <span class="s0">if </span>(::button_start.isInitialized)
+<a name="l54"><span class="ln">54   </span></a>            button_start.setOnClickListener {
+<a name="l55"><span class="ln">55   </span></a>                StartRecording()
+<a name="l56"><span class="ln">56   </span></a>            }
+<a name="l57"><span class="ln">57   </span></a>
+<a name="l58"><span class="ln">58   </span></a>        <span class="s0">if</span>(::button_stop.isInitialized)
+<a name="l59"><span class="ln">59   </span></a>            button_stop.setOnClickListener {
+<a name="l60"><span class="ln">60   </span></a>                StopRecording()
+<a name="l61"><span class="ln">61   </span></a>            }
+<a name="l62"><span class="ln">62   </span></a>
+<a name="l63"><span class="ln">63   </span></a>        <span class="s0">if</span>(::button_pause.isInitialized)
+<a name="l64"><span class="ln">64   </span></a>            button_pause.setOnClickListener {
+<a name="l65"><span class="ln">65   </span></a>                PauseRecording()
+<a name="l66"><span class="ln">66   </span></a>            }
+<a name="l67"><span class="ln">67   </span></a>    }
+<a name="l68"><span class="ln">68   </span></a>
+<a name="l69"><span class="ln">69   </span></a>    private <span class="s0">fun </span>StartRecording(){
+<a name="l70"><span class="ln">70   </span></a>        <span class="s0">try </span>{
+<a name="l71"><span class="ln">71   </span></a>            mr?.prepare()
+<a name="l72"><span class="ln">72   </span></a>            mr?.start()
+<a name="l73"><span class="ln">73   </span></a>            state=<span class="s0">true</span>
+<a name="l74"><span class="ln">74   </span></a>            Toast.makeText(<span class="s0">this</span>,<span class="s3">&quot;Recording&quot;</span>,Toast.LENGTH_SHORT).show()
+<a name="l75"><span class="ln">75   </span></a>        } catch (e:IllegalStateException) {
+<a name="l76"><span class="ln">76   </span></a>            e.printStackTrace()
+<a name="l77"><span class="ln">77   </span></a>        } catch (e:IOException) {
+<a name="l78"><span class="ln">78   </span></a>            e.printStackTrace()
+<a name="l79"><span class="ln">79   </span></a>        }
+<a name="l80"><span class="ln">80   </span></a>    }
+<a name="l81"><span class="ln">81   </span></a>
+<a name="l82"><span class="ln">82   </span></a>
+<a name="l83"><span class="ln">83   </span></a>    @RequiresApi(Build.VERSION_CODES.N)
+<a name="l84"><span class="ln">84   </span></a>    private <span class="s0">fun </span>PauseRecording(){
+<a name="l85"><span class="ln">85   </span></a>        <span class="s0">if</span>(state){
+<a name="l86"><span class="ln">86   </span></a>            <span class="s0">if </span>(!recordingStopped){
+<a name="l87"><span class="ln">87   </span></a>                Toast.makeText(<span class="s0">this</span>,<span class="s3">&quot;Stopped&quot;</span>,Toast.LENGTH_SHORT).show()
+<a name="l88"><span class="ln">88   </span></a>                mr?.pause()
+<a name="l89"><span class="ln">89   </span></a>                recordingStopped=<span class="s0">true</span>
+<a name="l90"><span class="ln">90   </span></a>                button_pause.text=<span class="s3">&quot;Resume&quot;</span>
+<a name="l91"><span class="ln">91   </span></a>            } <span class="s0">else </span>{
+<a name="l92"><span class="ln">92   </span></a>                ResumeRecording()
+<a name="l93"><span class="ln">93   </span></a>            }
+<a name="l94"><span class="ln">94   </span></a>        }
+<a name="l95"><span class="ln">95   </span></a>    }
+<a name="l96"><span class="ln">96   </span></a>
+<a name="l97"><span class="ln">97   </span></a>
+<a name="l98"><span class="ln">98   </span></a>    @RequiresApi(Build.VERSION_CODES.N)
+<a name="l99"><span class="ln">99   </span></a>    private <span class="s0">fun </span>ResumeRecording(){
+<a name="l100"><span class="ln">100  </span></a>        Toast.makeText(<span class="s0">this</span>,<span class="s3">&quot;Resume&quot;</span>,Toast.LENGTH_SHORT).show()
+<a name="l101"><span class="ln">101  </span></a>        mr?.reset()
+<a name="l102"><span class="ln">102  </span></a>        button_pause.text=<span class="s3">&quot;Pause&quot;</span>
+<a name="l103"><span class="ln">103  </span></a>        recordingStopped=<span class="s0">false</span>
+<a name="l104"><span class="ln">104  </span></a>    }
+<a name="l105"><span class="ln">105  </span></a>
+<a name="l106"><span class="ln">106  </span></a>    private <span class="s0">fun </span>StopRecording(){
+<a name="l107"><span class="ln">107  </span></a>        <span class="s0">if </span>(state){
+<a name="l108"><span class="ln">108  </span></a>            mr?.stop()
+<a name="l109"><span class="ln">109  </span></a>            mr?.release()
+<a name="l110"><span class="ln">110  </span></a>            state=<span class="s0">false</span>
+<a name="l111"><span class="ln">111  </span></a>        } <span class="s0">else </span>{
+<a name="l112"><span class="ln">112  </span></a>            Toast.makeText(<span class="s0">this</span>,<span class="s3">&quot;Not recording&quot;</span>,Toast.LENGTH_SHORT).show()
+<a name="l113"><span class="ln">113  </span></a>        }
+<a name="l114"><span class="ln">114  </span></a>    }
+<a name="l115"><span class="ln">115  </span></a>}</pre>
+</body>
+</html>
